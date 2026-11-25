@@ -41,6 +41,14 @@ def main() -> None:
         raise ValueError("entry must be a single line")
     if LINE != LINE.strip():
         raise ValueError("entry must not start or end with whitespace")
+    # The brief requires one sentence: reject control characters, and reject
+    # any sentence-ending punctuation followed by more text (". ", "! ", "? ")
+    # inside the line, so the entry cannot accidentally be two sentences.
+    for ch in LINE:
+        if ord(ch) < 32 or ord(ch) == 127:
+            raise ValueError("entry must not contain control characters")
+    if any(sep in LINE[:-1] for sep in (". ", "! ", "? ")):
+        raise ValueError("entry must be a single sentence")
     length = len(LINE)
     if length < 1 or length > 200:
         raise ValueError(f"entry is {length} characters; the gate needs 1-200")
